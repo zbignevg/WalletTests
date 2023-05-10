@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -7,6 +8,7 @@ using Serilog;
 using Serilog.Formatting.Compact;
 using System.Text;
 using Wallet.Api.Repositories;
+using Wallet.Api.Services;
 using Wallet.Models;
 using Wallet.Services;
 
@@ -58,10 +60,10 @@ builder.Services.Configure<WalletDBSettings>(
 builder.Services.AddScoped<IBankAccountRepository, BankAccountRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITransactionsRepository, TransactionsRepository>();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<BankAccountService>();
-builder.Services.AddScoped<TransactionsService>();
-builder.Services.AddScoped<KafkaSendFundsService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IBankAccountService, BankAccountService>();
+builder.Services.AddScoped<ITransactionsService, TransactionsService>();
+builder.Services.AddScoped<ISendFundsService, SendFundsService>();
 builder.Services.AddHostedService<TransactionProcessorService>();
 
 

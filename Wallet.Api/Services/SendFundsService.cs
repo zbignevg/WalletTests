@@ -3,17 +3,18 @@ using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
 using Microsoft.Extensions.Hosting;
+using Wallet.Api.Services;
 using Wallet.Models;
 
 namespace Wallet.Services
 {
-    public class KafkaSendFundsService
+    public class SendFundsService : ISendFundsService
     {
-        private ILogger<KafkaSendFundsService> _log;
+        private ILogger<SendFundsService> _log;
         private CancellationToken _cancellationToken;
         private ProducerConfig _config;
 
-        public KafkaSendFundsService(ILogger<KafkaSendFundsService> log)
+        public SendFundsService(ILogger<SendFundsService> log)
         {
             _config = new ProducerConfig()
             {

@@ -10,6 +10,7 @@ using Isopoh.Cryptography.Argon2;
 using Wallet.Helpers;
 using System.Security.Cryptography;
 using System.ComponentModel;
+using Wallet.Api.Services;
 
 namespace Wallet.Controllers;
 
@@ -18,17 +19,17 @@ namespace Wallet.Controllers;
 public class UserController : ControllerBase
 {
     public IConfiguration _configuration;
-    private readonly UserService _userService;
+    private readonly IUserService _userService;
     private readonly ILogger<TransactionProcessorService> _logger;
 
-    public UserController(IConfiguration config, UserService userService, ILogger<TransactionProcessorService> logger)
+    public UserController(IConfiguration config, IUserService userService, ILogger<TransactionProcessorService> logger)
     {
         _configuration = config;
         _userService = userService;
         _logger = logger;
     }
 
-    //[Authorize]
+    [Authorize]
     [HttpGet("{id:length(24)}")]
     public async Task<ActionResult<User>> Get(string id)
     {
@@ -43,7 +44,6 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("create")]
-    //[TODO: implement custom validation, to make emails unique]
     public async Task<IActionResult> CreateUser(User user)
     {
         user.Salt = Guid.NewGuid().ToString("N");
@@ -109,53 +109,4 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
-
-    //[HttpPost("createUser")]
-    //public async Task<IActionResult> CreateUSer(User user)
-    //{
-    //    await _userService.CreateAsync(user);
-
-    //    return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
-    //}
-
-    //[HttpPost]
-    //public async Task<IActionResult> Post(string email, string password)
-    //{
-    //    if (email != null && password != null)
-    //    {
-    //        var user = await _userService.GetUserByEmailAndPassword(email, password);
-
-    //        if (user != null)
-    //        {
-    //            //create claims details based on the user information
-    //            var claims = new[] {
-    //                    new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
-    //                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-    //                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-    //                    new Claim("UserId", user.Id),
-    //                    new Claim("FirstName", user.FirstName),
-    //                    new Claim("Email", user.Email)
-    //                };
-
-    //            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-    //            var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-    //            var token = new JwtSecurityToken(
-    //                _configuration["Jwt:Issuer"],
-    //                _configuration["Jwt:Audience"],
-    //                claims,
-    //                expires: DateTime.UtcNow.AddMinutes(10),
-    //                signingCredentials: signIn);
-
-    //            return Ok(new JwtSecurityTokenHandler().WriteToken(token));
-    //        }
-    //        else
-    //        {
-    //            return BadRequest("Invalid credentials");
-    //        }
-    //    }
-    //    else
-    //    {
-    //        return BadRequest();
-    //    }
-    //}
 }

@@ -2,12 +2,14 @@
 using Microsoft.Extensions.Hosting;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Wallet.Api.Services;
 using Wallet.Controllers;
 using Wallet.Models;
+using ZstdSharp.Unsafe;
 
 namespace Wallet.Services
 {
-    public class TransactionProcessorService : BackgroundService
+    public class TransactionProcessorService : BackgroundService, ITransactionProcessorService
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<TransactionProcessorService> _logger;
@@ -46,8 +48,8 @@ namespace Wallet.Services
 
                     using (IServiceScope scope = _serviceProvider.CreateScope())
                     {
-                        TransactionsService transactionService = scope.ServiceProvider.GetRequiredService<TransactionsService>();
-                        BankAccountService bankAccountService = scope.ServiceProvider.GetRequiredService<BankAccountService>();
+                        ITransactionsService transactionService = scope.ServiceProvider.GetRequiredService<ITransactionsService>();
+                        IBankAccountService bankAccountService = scope.ServiceProvider.GetRequiredService<IBankAccountService>();
 
                         var transaction = await transactionService.Get(transactionId);
                         var fromAccount = await bankAccountService.GetByAccNumber(transaction.From);
@@ -56,8 +58,10 @@ namespace Wallet.Services
                         if (toAccount is not null)
                         {
                             toAccount.Balance += transaction.Amount;
+                            fromAccount.Balance -= transaction.Amount;
 
                             await bankAccountService.Update(toAccount.Id, toAccount);
+                            await bankAccountService.Update(fromAccount.Id, fromAccount);
 
                             _logger.LogInformation($"New amount {toAccount.Balance}");
                         }

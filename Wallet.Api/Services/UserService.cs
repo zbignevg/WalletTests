@@ -2,10 +2,11 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Wallet.Api.Repositories;
+using Wallet.Api.Services;
 
 namespace Wallet.Services
 {
-    public class UserService
+    public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
 

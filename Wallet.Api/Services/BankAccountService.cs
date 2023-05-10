@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Wallet.Api.Repositories;
+using Wallet.Api.Services;
 using Wallet.Models;
 
 namespace Wallet.Services
 {
-    public class BankAccountService
+    public class BankAccountService : IBankAccountService
     {
         private readonly IBankAccountRepository _bankAccountRepository;
         public BankAccountService(IBankAccountRepository bankAccountRepository)
@@ -31,9 +32,8 @@ namespace Wallet.Services
         public bool ValidAndSufficientFunds(string accNumber, decimal amount)
         {
             BankAccount bankAccount = GetByAccNumber(accNumber).Result;
-            var diff = bankAccount.Balance > amount;
-
-            return bankAccount.Balance > amount;
+            
+            return bankAccount.Balance >= amount;
         }
     }
 }

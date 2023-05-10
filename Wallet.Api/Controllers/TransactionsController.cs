@@ -2,6 +2,7 @@
 using Wallet.Services;
 using Microsoft.AspNetCore.Mvc;
 using Wallet.Filters;
+using Wallet.Api.Services;
 
 namespace Wallet.Controllers;
 
@@ -9,23 +10,14 @@ namespace Wallet.Controllers;
 [Route("api/[controller]")]
 public class TransactionsController : ControllerBase
 {
-    private readonly TransactionsService _transactionService;
-    private readonly KafkaSendFundsService _kafkaSendFundsService;
+    private readonly ITransactionsService _transactionService;
+    private readonly ISendFundsService _sendFundsService;
 
-    public TransactionsController(TransactionsService transactionService, KafkaSendFundsService kafkaSendFundsService)
+    public TransactionsController(ITransactionsService transactionService, ISendFundsService sendFundsService)
     {
         _transactionService = transactionService;
-        _kafkaSendFundsService = kafkaSendFundsService;
+        _sendFundsService = sendFundsService;
     }
-
-    //[HttpPost("create")]
-    //public async Task<IActionResult> Create(Transaction transaction)
-    //{
-    //    await _transactionService.CreateAsync(transaction);
-
-    //    return CreatedAtAction(nameof(Get), new { id = transaction.Id }, transaction);
-    //}
-
 
     [HttpGet("{id:length(24)}")]
     public async Task<ActionResult<Transaction>> Get(string id)
@@ -41,12 +33,12 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpPost("create")]
-    [TranActionFilter]
+    [TransActionFilter]
     public async Task<IActionResult> Post(Transaction transaction)
     {
         await _transactionService.CreateAsync(transaction);
 
-        _ = _kafkaSendFundsService.sendTransaction(transaction);
+        _ = _sendFundsService.sendTransaction(transaction);
 
         return CreatedAtAction(nameof(Get), new { id = transaction.Id }, transaction);
     }

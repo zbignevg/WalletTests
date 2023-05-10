@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Wallet.Api.Repositories;
+using Wallet.Api.Services;
 using Wallet.Models;
 
 namespace Wallet.Services
 {
-    public class TransactionsService
+    public class TransactionsService : ITransactionsService
     {
         private readonly ITransactionsRepository _transactionsRepository;
         public TransactionsService(ITransactionsRepository transactionsRepository)
