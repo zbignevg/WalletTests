@@ -9,18 +9,15 @@ namespace Wallet.Services
 {
     public class TransactionProcessorService : BackgroundService
     {
-        private readonly TransactionsService _transactionService;
-        private readonly BankAccountService _bankAccountService;
+        private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<TransactionProcessorService> _logger;
         private readonly ConsumerConfig _consumerConfig;
 
         public TransactionProcessorService(
-            TransactionsService transactionsService, 
-            BankAccountService bankAccountService, 
+            IServiceProvider serviceProvider,
             ILogger<TransactionProcessorService> logger
         ) {
-            _transactionService = transactionsService;
-            _bankAccountService = bankAccountService;
+            _serviceProvider = serviceProvider;
             _logger = logger;
 
             _consumerConfig = new ConsumerConfig
@@ -47,20 +44,28 @@ namespace Wallet.Services
                     var kafkaRecord = consumer.Consume();
                     var transactionId = kafkaRecord.Value;
 
-                    var transaction = await _transactionService.GetAsync(transactionId);
-                    var fromAccount = await _bankAccountService.GetByAccNumberAsync(transaction.From);
-                    var toAccount = await _bankAccountService.GetByAccNumberAsync(transaction.To);
-
-                    if (toAccount is not null) {
-                        toAccount.Balance += transaction.Amount;
-
-                        await _bankAccountService.UpdateAsync(toAccount.Id, toAccount);
-
-                        _logger.LogInformation($"New amount {toAccount.Balance}");
-                    } else
+                    using (IServiceScope scope = _serviceProvider.CreateScope())
                     {
-                        _logger.LogInformation($"Something went wrong");
-                    }
+                        TransactionsService transactionService = scope.ServiceProvider.GetRequiredService<TransactionsService>();
+                        BankAccountService bankAccountService = scope.ServiceProvider.GetRequiredService<BankAccountService>();
+
+                        var transaction = await transactionService.Get(transactionId);
+                        var fromAccount = await bankAccountService.GetByAccNumber(transaction.From);
+                        var toAccount = await bankAccountService.GetByAccNumber(transaction.To);
+
+                        if (toAccount is not null)
+                        {
+                            toAccount.Balance += transaction.Amount;
+
+                            await bankAccountService.Update(toAccount.Id, toAccount);
+
+                            _logger.LogInformation($"New amount {toAccount.Balance}");
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"Something went wrong");
+                        }
+                    }   
                 }
             }
         }

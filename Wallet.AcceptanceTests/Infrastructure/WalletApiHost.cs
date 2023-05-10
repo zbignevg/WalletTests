@@ -64,12 +64,6 @@ namespace Wallet.AcceptanceTests.Infrastructure
             await func(authorizedHttpClient);
         }
 
-        public async Task<TResult> WithAuthorizedHttpClient<TResult>(Func<HttpClient, Task<TResult>> func)
-        {
-            var authorizedHttpClient = GetHttpAuthorizedClient();
-            return await func(authorizedHttpClient);
-        }
-        
         public HttpClient GetHttpClient()
         {
             return _applicationFactory.CreateClient();

@@ -30,7 +30,7 @@ public class TransactionsController : ControllerBase
     [HttpGet("{id:length(24)}")]
     public async Task<ActionResult<Transaction>> Get(string id)
     {
-        var transaction = await _transactionService.GetAsync(id);
+        var transaction = await _transactionService.Get(id);
 
         if (transaction is null)
         {
@@ -41,6 +41,7 @@ public class TransactionsController : ControllerBase
     }
 
     [HttpPost("create")]
+    [TranActionFilter]
     public async Task<IActionResult> Post(Transaction transaction)
     {
         await _transactionService.CreateAsync(transaction);
@@ -53,7 +54,7 @@ public class TransactionsController : ControllerBase
     [HttpPut("{id:length(24)}")]
     public async Task<IActionResult> Update(string id, Transaction updatedTransaction)
     {
-        var transaction = await _transactionService.GetAsync(id);
+        var transaction = await _transactionService.Get(id);
 
         if (transaction is null)
         {
@@ -70,7 +71,7 @@ public class TransactionsController : ControllerBase
     [HttpDelete("{id:length(24)}")]
     public async Task<IActionResult> Delete(string id)
     {
-        var transaction = await _transactionService.GetAsync(id);
+        var transaction = await _transactionService.Get(id);
 
         if (transaction is null)
         {

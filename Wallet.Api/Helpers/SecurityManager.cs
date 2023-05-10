@@ -53,25 +53,25 @@ namespace Wallet.Helpers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        //public static bool VerifyJWT(IConfiguration config, string token, string? salt = null)
-        //{
-        //    TokenValidationParameters validationParameters = new TokenValidationParameters
-        //    {
-        //        ValidateIssuer= true,
-        //        ValidIssuer = config["Jwt:Issuer"],
-        //        ValidateAudience = true,
-        //        ValidAudience = config["Jwt:Audience"],
-        //        ValidateLifetime= true,
-        //        //IssuerSigningKey = salt
-        //    };
+        public static bool VerifyJWT(IConfiguration config, string token, string? salt = null)
+        {
+            TokenValidationParameters validationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = config["Jwt:Issuer"],
+                ValidateAudience = true,
+                ValidAudience = config["Jwt:Audience"],
+                ValidateLifetime = true,
+                //IssuerSigningKey = salt
+            };
 
-        //    var handler = new JwtSecurityTokenHandler();
+            var handler = new JwtSecurityTokenHandler();
 
-        //    var claimsPrincipal = handler.ValidateToken(token, validationParameters, out var validatedToken);
+            var claimsPrincipal = handler.ValidateToken(token, validationParameters, out var validatedToken);
 
-        //    var claims = claimsPrincipal.Claims;
+            var claims = claimsPrincipal.Claims;
 
-        //    return true;
-        //}
+            return true;
+        }
     }
 }

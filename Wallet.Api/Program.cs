@@ -6,6 +6,7 @@ using MongoDB.Driver;
 using Serilog;
 using Serilog.Formatting.Compact;
 using System.Text;
+using Wallet.Api.Repositories;
 using Wallet.Models;
 using Wallet.Services;
 
@@ -22,9 +23,7 @@ builder.Host.UseSerilog(new LoggerConfiguration()
     )
     .CreateLogger());
 
-// Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -56,11 +55,16 @@ builder.Services.AddSwaggerGen(c => {
 
 builder.Services.Configure<WalletDBSettings>(
     builder.Configuration.GetSection("WalletDB"));
+builder.Services.AddScoped<IBankAccountRepository, BankAccountRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITransactionsRepository, TransactionsRepository>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<BankAccountService>();
 builder.Services.AddScoped<TransactionsService>();
 builder.Services.AddScoped<KafkaSendFundsService>();
-//builder.Services.AddHostedService<TransactionProcessorService>();
+builder.Services.AddHostedService<TransactionProcessorService>();
+
+
 //builder.Services.AddSingleton<Serilog.ILogger>(log);
 
 builder.Services.AddSingleton<IMongoClient>(services =>

@@ -1,29 +1,28 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
+using System.Linq;
+using Wallet.Models;
 using Wallet.Services;
 
 namespace Wallet.Filters
 {
     public class TranActionFilter : ActionFilterAttribute, IActionFilter
     {
-        private readonly BankAccountService _bankAccountService;
-        public TranActionFilter(BankAccountService bankAccountService) 
-        { 
-            _bankAccountService = bankAccountService;
-        }
-
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var bb = context.ActionArguments;
-            var transaction = context.ActionArguments.FirstOrDefault().Value;
+            Transaction transaction = (Transaction)context.ActionArguments.SingleOrDefault(p => p.Value is Transaction).Value;
+            BankAccountService bankAccountService = context.HttpContext.RequestServices.GetService<BankAccountService>();
 
-
-
+            if (!bankAccountService.ValidAndSufficientFunds(transaction.From, transaction.Amount))
+            {
+                throw new Exception("Insufficient funds");
+            }
+            
             base.OnActionExecuting(context);
         }
 
         public override void OnActionExecuted(ActionExecutedContext context)
         {
-            //base.OnActionExecuted(context);
+            base.OnActionExecuted(context);
         }
     }
 }

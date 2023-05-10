@@ -9,7 +9,7 @@ using System.Reflection.Metadata;
 
 namespace Wallet.Controllers;
 
-[Authorize]
+//[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class BankAccountController : ControllerBase
@@ -29,7 +29,7 @@ public class BankAccountController : ControllerBase
     [HttpGet("{id:length(24)}")]
     public async Task<ActionResult<BankAccount>> Get(string id)
     {
-        var bankAccount = await _bankAccountService.GetAsync(id);
+        var bankAccount = await _bankAccountService.Get(id);
 
         if (bankAccount is null)
         {
@@ -44,7 +44,7 @@ public class BankAccountController : ControllerBase
     {
         //var result = SecurityManager.VerifyJWT(_configuration, authToken);
 
-        await _bankAccountService.CreateAsync(bankAccount);
+        await _bankAccountService.Create(bankAccount);
 
         return CreatedAtAction(nameof(Get), new { id = bankAccount.Id }, bankAccount);
     }
@@ -52,7 +52,7 @@ public class BankAccountController : ControllerBase
     [HttpPut("{id:length(24)}")]
     public async Task<IActionResult> Update(string id, BankAccount updatedBankAccount)
     {
-        var bankAccount = await _bankAccountService.GetAsync(id);
+        var bankAccount = await _bankAccountService.Get(id);
 
         if (bankAccount is null)
         {
@@ -61,7 +61,7 @@ public class BankAccountController : ControllerBase
 
         updatedBankAccount.Id = bankAccount.Id;
 
-        await _bankAccountService.UpdateAsync(id, updatedBankAccount);
+        await _bankAccountService.Update(id, updatedBankAccount);
 
         return NoContent();
     }
@@ -69,14 +69,14 @@ public class BankAccountController : ControllerBase
     [HttpDelete("{id:length(24)}")]
     public async Task<IActionResult> Delete(string id)
     {
-        var bankAccount = await _bankAccountService.GetAsync(id);
+        var bankAccount = await _bankAccountService.Get(id);
 
         if (bankAccount is null)
         {
             return NotFound();
         }
 
-        await _bankAccountService.RemoveAsync(id);
+        await _bankAccountService.Remove(id);
 
         return NoContent();
     }
